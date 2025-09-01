@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Video Streaming Prototype
 
-## Getting Started
+This project is a **basic video streaming prototype** built with **Next.js 14 (App Router)** and **TypeScript**.  
+It focuses on **secure video streaming** using **AES-128 HLS encryption** with **signed URLs** and **authentication**.
 
-First, run the development server:
+---
+
+## Features
+
+- User login system using **Supabase Auth**
+- Video catalog page with sample videos
+- Watch page with **Video.js** HLS video player
+- AES-128 HLS encryption using **ffmpeg**
+- Signed video URLs with short expiry
+- Secure key server for authorized users only
+- Dynamic watermark overlay on video
+- Basic analytics logging (play, pause, end)
+- **Supabase Database** used for storing user data & analytics
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **Language:** TypeScript
+- **Authentication:** Supabase Auth
+- **Database:** Supabase
+- **Video Player:** Video.js
+- **Styling:** Tailwind CSS
+- **Encryption:** AES-128 HLS (`ffmpeg`)
+
+---
+
+## Setup Instructions
+
+### 1. Clone the project
+
+```bash
+git clone https://github.com/your-username/video-streaming-prototype.git
+cd video-streaming-prototype
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+# or
+pnpm install
+```
+
+### 3. Set environment variables
+
+Create a `.env.local` file and add:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXTAUTH_SECRET=your_secret_key
+NEXTAUTH_URL=http://localhost:3000
+JWT_SECRET=your_jwt_secret
+```
+
+### 4. Run the development server
 
 ```bash
 npm run dev
 # or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app will start on **http://localhost:3000**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## AES-128 HLS Encryption
 
-## Learn More
+### Generate key and encrypt video
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+openssl rand 16 > enc.key
+echo "enc.key" > enc.keyinfo
+echo "enc.key" >> enc.keyinfo
+echo "http://localhost:3000/api/keys" >> enc.keyinfo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+ffmpeg -i sample.mp4   -hls_time 10   -hls_key_info_file enc.keyinfo   -hls_playlist_type vod   -hls_segment_filename "segment%03d.ts"   output.m3u8
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This generates:
 
-## Deploy on Vercel
+- `output.m3u8` → Playlist file
+- `segment001.ts`, `segment002.ts` → Encrypted video segments
+- `enc.key` → Encryption key (served securely)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Endpoints
+
+| Endpoint          | Method | Description                    |
+| ----------------- | ------ | ------------------------------ |
+| `/api/auth/*`     | POST   | Supabase authentication routes |
+| `/api/video/sign` | GET    | Generates signed URLs          |
+| `/api/keys`       | GET    | Serves AES key securely        |
+| `/api/analytics`  | POST   | Logs player events             |
+
+---
+
+## Deliverables
+
+- Working app with secure video streaming
+- Authentication & database using **Supabase**
+- Video playback using **Video.js**
+- Basic analytics stored in Supabase
+- Demo video showing login → play → watermark
