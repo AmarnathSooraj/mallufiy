@@ -36,8 +36,7 @@ It focuses on **secure video streaming** using **AES-128 HLS encryption** with *
 ### 1. Clone the project
 
 ```bash
-git clone https://github.com/your-username/video-streaming-prototype.git
-cd video-streaming-prototype
+[git clone https://github.com/AmarnathSooraj/mallufiy.git]
 ```
 
 ### 2. Install dependencies
@@ -53,11 +52,8 @@ pnpm install
 Create a `.env.local` file and add:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-NEXTAUTH_SECRET=your_secret_key
-NEXTAUTH_URL=http://localhost:3000
-JWT_SECRET=your_jwt_secret
+NEXT_PUBLIC_SUPABASE_URL=https://dztqsfjhsaemsnlcilkn.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6dHFzZmpoc2FlbXNubGNpbGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzOTk2MjAsImV4cCI6MjA3MTk3NTYyMH0.orjBf4mFK8nb-tgbv14IQsRae1YtWU6I-9MHcHG98aw
 ```
 
 ### 4. Run the development server
@@ -93,21 +89,9 @@ This generates:
 
 ---
 
-## API Endpoints
-
-| Endpoint          | Method | Description                    |
-| ----------------- | ------ | ------------------------------ |
-| `/api/auth/*`     | POST   | Supabase authentication routes |
-| `/api/video/sign` | GET    | Generates signed URLs          |
-| `/api/keys`       | GET    | Serves AES key securely        |
-| `/api/analytics`  | POST   | Logs player events             |
-
----
-
 ## Deliverables
 
 - Working app with secure video streaming
 - Authentication & database using **Supabase**
 - Video playback using **Video.js**
 - Basic analytics stored in Supabase
-- Demo video showing login → play → watermark
