@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import supabase from '@/lib/client' // adjust if your supabase client is elsewhere
+import supabase from '../../../client' // ✅ correct path to root client.js
 
 export default function WatchPage() {
   const params = useParams()
@@ -20,9 +20,9 @@ export default function WatchPage() {
       setUser(user)
     }
     getUser()
-  }, [supabase.auth])
+  }, [])
 
-  // Fetch video sources when id changes
+  // Fetch video
   useEffect(() => {
     if (!id) return
     setVideoSources([
@@ -31,21 +31,18 @@ export default function WatchPage() {
     ])
   }, [id])
 
-  // Analytics sender (memoized to avoid missing deps warning)
-  const sendAnalytics = useCallback(
-    async (event: { type: string }) => {
-      if (!user || !id) return
-      await supabase.from('analytics').insert([
-        {
-          user_id: user.id,
-          video_id: id,
-          event_type: event.type,
-          created_at: new Date().toISOString()
-        }
-      ])
-    },
-    [user, id]
-  )
+  // Send analytics
+  const sendAnalytics = async (event: { type: string }) => {
+    if (!user || !id) return
+    await supabase.from('analytics').insert([
+      {
+        user_id: user.id,
+        video_id: id,
+        event_type: event.type,
+        created_at: new Date().toISOString()
+      }
+    ])
+  }
 
   // Attach video listeners
   useEffect(() => {
@@ -65,7 +62,7 @@ export default function WatchPage() {
       video.removeEventListener('pause', handlePause)
       video.removeEventListener('ended', handleEnded)
     }
-  }, [sendAnalytics])
+  }, [user, id, videoSources])
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
