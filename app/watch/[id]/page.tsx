@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import supabase from '@/utils/supabase/client'
 
-const supabase = createClient()
 
 export default function WatchPage() {
   const params = useParams()
