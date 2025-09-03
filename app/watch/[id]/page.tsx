@@ -1,91 +1,62 @@
-'use client'
+"use client";
 
-import type { User } from '@supabase/supabase-js';
-import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'next/navigation'
-import videojs from 'video.js'
-import 'video.js/dist/video-js.css'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useEffect, useState, useCallback } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import type { User } from "@supabase/supabase-js";
 
-export default function WatchPage() {
-  const { id } = useParams()
-  const videoRef = useRef(null)
-  const playerRef = useRef(null)
-const [user, setUser] = useState<User | null>(null);
-  const supabase = createClientComponentClient()
+export default function WatchPage({ params }: { params: { id: string } }) {
+  const supabase = createClientComponentClient();
+  const [user, setUser] = useState<User | null>(null);
+  const [videoSources, setVideoSources] = useState<any[]>([]);
 
-  const videoSources = {
-    '1': 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-    '2': 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
-  }
-
-  // Fetch logged-in user info
+  // ✅ Fetch logged-in user once
   useEffect(() => {
     async function fetchUser() {
-      const { data } = await supabase.auth.getUser()
-      if (data?.user) setUser(data.user)
+      const { data } = await supabase.auth.getUser();
+      if (data?.user) setUser(data.user);
     }
-    fetchUser()
-  }, [])
+    fetchUser();
+  }, [supabase]);
 
-  // Function to send analytics
-  async function sendAnalytics(event: React.SyntheticEvent<HTMLVideoElement>) {
-  if (!user) return;
-  await supabase.from("analytics").insert([
-    {
-      user_id: user.id,
-      video_id: params.id,
-      event_type: event.type,
-      created_at: new Date().toISOString(),
+  // ✅ Send analytics (memoized to avoid dependency warnings)
+  const sendAnalytics = useCallback(
+    async (event: { type: string }) => {
+      if (!user) return;
+      await supabase.from("analytics").insert([
+        {
+          user_id: user.id,
+          video_id: params.id,
+          event_type: event.type,
+          created_at: new Date().toISOString(),
+        },
+      ]);
     },
-  ]);
-}
+    [supabase, user, params.id]
+  );
 
-  // Initialize Video.js
+  // ✅ Example: track when user and sources are ready
   useEffect(() => {
-    if (videoRef.current && !playerRef.current) {
-      playerRef.current = videojs(videoRef.current, {
-        controls: true,
-        autoplay: false,
-        fluid: true,
-        sources: [
-          {
-            src: videoSources[id],
-            type: 'application/x-mpegURL',
-          },
-        ],
-      })
-
-      const player = playerRef.current
-      player.on('play', () => sendAnalytics('play'))
-      player.on('pause', () => sendAnalytics('pause'))
-      player.on('ended', () => sendAnalytics('ended'))
-    }
-
-    return () => {
-      if (playerRef.current) {
-        playerRef.current.dispose()
-        playerRef.current = null
-      }
-    }
-  }, [id, user])
+    if (!user || videoSources.length === 0) return;
+    sendAnalytics({ type: "page_load" });
+  }, [user, videoSources, sendAnalytics]);
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 relative">
-      <h1 className="text-white text-2xl font-bold mb-4">Now Playing - Movie {id}</h1>
+    <div className="p-4">
+      <h1 className="text-xl font-semibold">
+        Watching video <span className="text-blue-500">{params.id}</span>
+      </h1>
 
-      <div className="w-full max-w-4xl relative">
-        <video
-          ref={videoRef}
-          className="video-js vjs-big-play-centered rounded-lg overflow-hidden w-full"
-        />
-
-        {user?.email && (
-          <div className="absolute top-4 right-4 text-white text-sm opacity-50 pointer-events-none">
-            {user.email}
-          </div>
-        )}
-      </div>
+      {/* Example player */}
+      <video
+        className="mt-4 w-full rounded-lg shadow"
+        controls
+        onPlay={(e) => sendAnalytics({ type: e.type })}
+        onPause={(e) => sendAnalytics({ type: e.type })}
+      >
+        {videoSources.map((src, idx) => (
+          <source key={idx} src={src.url} type={src.type} />
+        ))}
+      </video>
     </div>
-  )
+  );
 }
