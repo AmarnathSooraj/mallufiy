@@ -26,7 +26,7 @@ export default function CatalogPage() {
   useEffect(() => {
     async function fetchUser() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) setUserEmail(user.email)
+      if (user) setUserEmail(user.email ?? "")
     }
     fetchUser()
   }, [])
