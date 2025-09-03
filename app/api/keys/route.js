@@ -4,7 +4,7 @@ import path from "path";
 import { NextRequest, NextResponse } from "next/server";
 
 // Simple demo: serve enc.key only if a token is provided
-export async function GET(req: NextRequest) {
+export async function GET(req) {
   const url = new URL(req.url);
   const token = url.searchParams.get("token");
 
