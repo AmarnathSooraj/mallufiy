@@ -29,16 +29,17 @@ const [user, setUser] = useState<User | null>(null);
   }, [])
 
   // Function to send analytics
-  async function sendAnalytics(event) {
-    if (!user) return
-    await supabase.from('analytics').insert([
-      {
-        user_id: user.id,
-        video_id: id,
-        event,
-      },
-    ])
-  }
+  async function sendAnalytics(event: React.SyntheticEvent<HTMLVideoElement>) {
+  if (!user) return;
+  await supabase.from("analytics").insert([
+    {
+      user_id: user.id,
+      video_id: params.id,
+      event_type: event.type,
+      created_at: new Date().toISOString(),
+    },
+  ]);
+}
 
   // Initialize Video.js
   useEffect(() => {
