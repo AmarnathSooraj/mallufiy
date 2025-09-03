@@ -9,8 +9,8 @@ type AnalyticsEvent = {
 }
 
 export default function WatchPage() {
-  const params = useParams<{ id: string }>() // ✅ this replaces "params"
-  const id = params?.id
+  const params = useParams<{ id }>() // ✅ this replaces "params"
+  const id = id
   const [user, setUser] = useState<any>(null)
   const [videoSources, setVideoSources] = useState<string[]>([])
 
