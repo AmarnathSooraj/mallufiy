@@ -2,20 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
+import supabase from '@/lib/client' // ✅ use your existing Supabase client
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+type AnalyticsEvent = {
+  type: string
+}
 
 export default function WatchPage() {
-  const params = useParams<{ id: string }>() // ✅ get /watch/[id]
+  // ✅ dynamic video id from route
+  const { id } = useParams<{ id: string }>()
   const [user, setUser] = useState<any>(null)
   const [videoSources, setVideoSources] = useState<string[]>([])
 
-  // ✅ fetch user session
+  // ✅ get current logged-in user
   useEffect(() => {
     const getUser = async () => {
       const {
@@ -26,33 +25,32 @@ export default function WatchPage() {
     getUser()
   }, [])
 
-  // ✅ fetch video sources (replace with your own logic)
+  // ✅ fetch video sources (mocked for now)
   useEffect(() => {
-    if (!params?.id) return
+    if (!id) return
     const fetchVideo = async () => {
-      // Example: fetch video URLs from Supabase or API
       setVideoSources([
-        `/videos/${params.id}/1080p.m3u8`,
-        `/videos/${params.id}/720p.m3u8`
+        `/videos/${id}/1080p.m3u8`,
+        `/videos/${id}/720p.m3u8`
       ])
     }
     fetchVideo()
-  }, [params?.id])
+  }, [id])
 
-  // ✅ send analytics (play, pause, etc.)
-  const sendAnalytics = async (event: { type: string }) => {
-    if (!user || !params?.id) return
+  // ✅ analytics sender
+  const sendAnalytics = async (event: AnalyticsEvent) => {
+    if (!user || !id) return
     await supabase.from('analytics').insert([
       {
         user_id: user.id,
-        video_id: params.id,
+        video_id: id,
         event_type: event.type,
         created_at: new Date().toISOString()
       }
     ])
   }
 
-  // ✅ track video events
+  // ✅ attach event listeners to video
   useEffect(() => {
     const video = document.getElementById('video-player') as HTMLVideoElement | null
     if (!video) return
@@ -70,17 +68,18 @@ export default function WatchPage() {
       video.removeEventListener('pause', handlePause)
       video.removeEventListener('ended', handleEnded)
     }
-  }, [user, params?.id, videoSources])
+  }, [user, id, videoSources])
 
+  // ✅ UI
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
-      <h1 className="text-2xl font-bold mb-4">Watching Video {params?.id}</h1>
+      <h1 className="text-2xl font-bold mb-4">Watching Video {id}</h1>
       {videoSources.length > 0 ? (
         <video
           id="video-player"
           className="w-full max-w-4xl rounded-lg"
           controls
-          src={videoSources[0]} // default source
+          src={videoSources[0]}
         />
       ) : (
         <p>Loading video...</p>
