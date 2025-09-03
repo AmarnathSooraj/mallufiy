@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import supabase from '../../../client' // ✅ correct path to root client.js
+import supabase from '@/client'   // works if client.ts is in project root
 
 export default function WatchPage() {
   const params = useParams()
