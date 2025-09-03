@@ -3,13 +3,15 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import supabase from '@/utils/supabase/client'
+import { User } from '@supabase/supabase-js'
+
 
 
 export default function WatchPage() {
   const params = useParams()
   const id = params?.id as string
 
-  const [user, setUser] = useState<any>(null)
+const [user, setUser] = useState<User | null>(null)
   const [videoSources, setVideoSources] = useState<string[]>([])
 
   // Get logged-in user
