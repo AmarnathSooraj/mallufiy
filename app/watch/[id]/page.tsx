@@ -2,15 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import supabase from '@/lib/client' // your client.js setup
-
-type AnalyticsEvent = {
-  type: string
-}
+import supabase from '@/lib/client' // adjust if your supabase client is elsewhere
 
 export default function WatchPage() {
-  const params = useParams<{ id }>() // ✅ this replaces "params"
-  const id = id
+  const params = useParams()
+  const id = params?.id as string // ✅ cast instead of using `:`
+
   const [user, setUser] = useState<any>(null)
   const [videoSources, setVideoSources] = useState<string[]>([])
 
@@ -35,7 +32,7 @@ export default function WatchPage() {
   }, [id])
 
   // Send analytics
-  const sendAnalytics = async (event: AnalyticsEvent) => {
+  const sendAnalytics = async (event: { type: string }) => {
     if (!user || !id) return
     await supabase.from('analytics').insert([
       {
@@ -65,7 +62,7 @@ export default function WatchPage() {
       video.removeEventListener('pause', handlePause)
       video.removeEventListener('ended', handleEnded)
     }
-  }, [user, id, videoSources]) // ✅ all dependencies included
+  }, [user, id, videoSources])
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
