@@ -2,19 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import supabase from '@/lib/client' // ✅ use your existing Supabase client
+import supabase from '@/lib/client' // your client.js setup
 
 type AnalyticsEvent = {
   type: string
 }
 
 export default function WatchPage() {
-  // ✅ dynamic video id from route
-  const { id } = useParams<{ id: string }>()
+  const params = useParams<{ id: string }>() // ✅ this replaces "params"
+  const id = params?.id
   const [user, setUser] = useState<any>(null)
   const [videoSources, setVideoSources] = useState<string[]>([])
 
-  // ✅ get current logged-in user
+  // Get logged-in user
   useEffect(() => {
     const getUser = async () => {
       const {
@@ -25,32 +25,29 @@ export default function WatchPage() {
     getUser()
   }, [])
 
-  // ✅ fetch video sources (mocked for now)
+  // Fetch video
   useEffect(() => {
     if (!id) return
-    const fetchVideo = async () => {
-      setVideoSources([
-        `/videos/${id}/1080p.m3u8`,
-        `/videos/${id}/720p.m3u8`
-      ])
-    }
-    fetchVideo()
+    setVideoSources([
+      `/videos/${id}/1080p.m3u8`,
+      `/videos/${id}/720p.m3u8`
+    ])
   }, [id])
 
-  // ✅ analytics sender
+  // Send analytics
   const sendAnalytics = async (event: AnalyticsEvent) => {
     if (!user || !id) return
     await supabase.from('analytics').insert([
       {
         user_id: user.id,
-        video_id: id,
+        video_id: id, // ✅ no more params.id
         event_type: event.type,
         created_at: new Date().toISOString()
       }
     ])
   }
 
-  // ✅ attach event listeners to video
+  // Attach video listeners
   useEffect(() => {
     const video = document.getElementById('video-player') as HTMLVideoElement | null
     if (!video) return
@@ -68,9 +65,8 @@ export default function WatchPage() {
       video.removeEventListener('pause', handlePause)
       video.removeEventListener('ended', handleEnded)
     }
-  }, [user, id, videoSources])
+  }, [user, id, videoSources]) // ✅ all dependencies included
 
-  // ✅ UI
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
       <h1 className="text-2xl font-bold mb-4">Watching Video {id}</h1>
