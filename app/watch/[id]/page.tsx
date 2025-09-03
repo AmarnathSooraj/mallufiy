@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import supabase from '@/client'   // works if client.ts is in project root
+import { createClient } from '@/utils/supabase/client'
+
+const supabase = createClient()
 
 export default function WatchPage() {
   const params = useParams()
