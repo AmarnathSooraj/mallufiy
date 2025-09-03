@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import supabase from '@/lib/client' // adjust if your supabase client is elsewhere
 
 export default function WatchPage() {
   const params = useParams()
-  const id = params?.id as string // ✅ cast instead of using `:`
+  const id = params?.id as string
 
   const [user, setUser] = useState<any>(null)
   const [videoSources, setVideoSources] = useState<string[]>([])
@@ -20,9 +20,9 @@ export default function WatchPage() {
       setUser(user)
     }
     getUser()
-  }, [])
+  }, [supabase.auth])
 
-  // Fetch video
+  // Fetch video sources when id changes
   useEffect(() => {
     if (!id) return
     setVideoSources([
@@ -31,18 +31,21 @@ export default function WatchPage() {
     ])
   }, [id])
 
-  // Send analytics
-  const sendAnalytics = async (event: { type: string }) => {
-    if (!user || !id) return
-    await supabase.from('analytics').insert([
-      {
-        user_id: user.id,
-        video_id: id, // ✅ no more params.id
-        event_type: event.type,
-        created_at: new Date().toISOString()
-      }
-    ])
-  }
+  // Analytics sender (memoized to avoid missing deps warning)
+  const sendAnalytics = useCallback(
+    async (event: { type: string }) => {
+      if (!user || !id) return
+      await supabase.from('analytics').insert([
+        {
+          user_id: user.id,
+          video_id: id,
+          event_type: event.type,
+          created_at: new Date().toISOString()
+        }
+      ])
+    },
+    [user, id]
+  )
 
   // Attach video listeners
   useEffect(() => {
@@ -62,7 +65,7 @@ export default function WatchPage() {
       video.removeEventListener('pause', handlePause)
       video.removeEventListener('ended', handleEnded)
     }
-  }, [user, id, videoSources])
+  }, [sendAnalytics])
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
