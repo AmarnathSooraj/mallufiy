@@ -1,5 +1,6 @@
 'use client'
 
+import type { User } from '@supabase/supabase-js';
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import videojs from 'video.js'
@@ -10,7 +11,7 @@ export default function WatchPage() {
   const { id } = useParams()
   const videoRef = useRef(null)
   const playerRef = useRef(null)
-  const [user, setUser] = useState(null)
+const [user, setUser] = useState<User | null>(null);
   const supabase = createClientComponentClient()
 
   const videoSources = {
