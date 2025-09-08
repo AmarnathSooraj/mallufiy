@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+
 
 const movies = [
   {
@@ -20,22 +20,13 @@ const movies = [
 ]
 
 export default function CatalogPage() {
-  const supabase = createClientComponentClient()
-  const [userEmail, setUserEmail] = useState('')
 
-  useEffect(() => {
-    async function fetchUser() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) setUserEmail(user.email ?? "")
-    }
-    fetchUser()
-  }, [])
 
   return (
     <div className="min-h-screen bg-[#fefefe]">
       <Navbar />
       <h2 className="text-lg text-center mt-4 text-gray-700">
-        Welcome, {userEmail || 'Guest'}
+        Welcome
       </h2>
       <h1 className="text-3xl font-bold my-8 text-center font-[Poppins]">
         Movie Catalog

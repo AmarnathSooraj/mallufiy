@@ -1,6 +1,9 @@
+'use client'
+
 import Navbar from '@/components/Navbar'
 import Image from 'next/image'
 import Link from 'next/link'
+
 
 export default function Home() {
   return (
@@ -15,7 +18,7 @@ export default function Home() {
           priority
         />
       </div>
-      <div className='absolute bottom-70 text-center left-1/2 -translate-x-1/2'>
+      <div className='absolute bottom-70 text-center left-1/2 -translate-x-1/2 max-w-4xl w-full'>
         <p className='text-[#fefefe] text-2xl sm:text-4xl'>Enjoy your favorite Malayalam movies with family and friends – anytime, anywhere, without limits.</p>
       </div>
       <div className="absolute bottom-22 left-1/2 -translate-x-1/2 text-[#d6d4d4]">
