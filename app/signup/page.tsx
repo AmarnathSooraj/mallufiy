@@ -11,8 +11,8 @@ import {useSession, signIn, signOut} from 'next-auth/react'
 export default function Page() {
 
     const db = connectDB()
-    const { data : session }=useSession()
-    console.log(session)
+    // const { data : session }=useSession()
+    // console.log(session)
 
     const [signUp,setSignUp]=useState({
       name:'',
